@@ -5,6 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type":"python",
+            "request": "launch",
+            "name": "build",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}\\JsonUtils.py"
+        },
+        {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
