@@ -7,15 +7,14 @@ del sys
 
 
 
-#bad file verify
-import JsonUtils as jsu
-#f=open("data.sao","w+") 
-#if f.read()=="":f.write('{ }')
-#f.close()
-#del f
+
+#import JsonUtils as jsu
+from json import dumps as jsonDumps
+from json import loads as jsonLoads
+import FileUtils as flu
 import interface
 import secrets_app
-import guildParser
+import Encrypt
 import webbrowser
 import pypresence as pyp
 from time import sleep as wait
@@ -62,7 +61,7 @@ class sao():
         print("> joining guild...")
         #key="WyJ0aGUgam9lcyIsIkFXRkFXRkdXIl0="
         try:
-            [name,invite]=guildParser.convert(key)
+            [name,invite]=Encrypt.decode(key)
             url="https://discord.gg/"+invite
             webbrowser.open_new(url)
             self.guild=name
@@ -108,7 +107,9 @@ class sao():
                 wait(0)
     def load(self):
         try:
-            save=jsu.read("data.sao")
+            save=flu.read("data.sao")
+            save=Encrypt.decode(save)
+            save=jsonLoads(save)
             self.gold=save['gold']
             self.level=save['level']
             self.guild=save['guild']
@@ -133,7 +134,9 @@ class sao():
             "day":self.day
         
         }
-        jsu.write(save, "data.sao")
+        save=jsonDumps(save)
+        save=Encrypt.encode(save)
+        flu.write("data.sao", save)
         print(">>> data saved.")
 
 
