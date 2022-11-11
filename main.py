@@ -101,7 +101,7 @@ class sao():
         self.yearday=_getYearDay()
         while 1:
             wait(30)
-            if _getYearDay()>self.yearday:
+            if _getYearDay()!=self.yearday:
                 self.yearday=_getYearDay()
                 self.day+=1
                 print(f">> new day, {self.day}")

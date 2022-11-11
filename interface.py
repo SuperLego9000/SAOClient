@@ -16,6 +16,7 @@ class Gui(tk.Tk):
         #self.goldvar.set(self.saoC.gold)
         #self.levelvar.set(self.saoC.level)
         self.taskvar.set(self.saoC.task)
+        self.statbarvar.set(f"level: {self.saoC.level} gold: {self.saoC.gold}\nhealth: {self.saoC.health} energy: {self.saoC.energy}")
         #self.guildvar.set(self.saoC.guild)
     def statusUpdate(self):
         #try:
@@ -38,7 +39,7 @@ class Gui(tk.Tk):
             super().__init__()
             #tk init
             self.lower()
-            self.geometry("250x130+15+15")
+            self.geometry("250x150+15+15")
             self.title("SAOClient")
             self.resizable(False,False)
             self.columnconfigure(0, weight=1)
@@ -46,23 +47,27 @@ class Gui(tk.Tk):
             self.attributes('-alpha',0.9)
             #self.iconbitmap('./icon.ico')
 
+            self.statbarvar=tk.StringVar()
+            _=tk.Label(self,textvariable=self.statbarvar)
+            _.grid(row=0,column=0,columnspan=2,pady=5)
+
             _=tk.Label(self,text="Task:")
-            _.grid(row=0,column=0,pady=5)
+            _.grid(row=1,column=0,pady=5)
             self.taskvar=tk.StringVar()
             _=ttk.Combobox(self,textvariable=self.taskvar)
             _['values']=tasks.names
             _.current(0)
             _['state']="readonly"
-            _.grid(row=0,column=1,pady=5,sticky=tk.W)
-
-            _=tk.Label(self,text="Guild:")
-            _.grid(row=1,column=0,pady=5)
-            self.guildvar=tk.StringVar()
-            _=tk.Entry(self,textvariable=self.guildvar)
             _.grid(row=1,column=1,pady=5,sticky=tk.W)
 
+            _=tk.Label(self,text="Guild:")
+            _.grid(row=2,column=0,pady=5)
+            self.guildvar=tk.StringVar()
+            _=tk.Entry(self,textvariable=self.guildvar)
+            _.grid(row=2,column=1,pady=5,sticky=tk.W)
+
             _=tk.Button(self,text="update",command=self.statusUpdate)
-            _.grid(row=2,column=0,columnspan=2,pady=5)
+            _.grid(row=3,column=0,columnspan=2,pady=5)
             del _
     #:      #entries setup
 
