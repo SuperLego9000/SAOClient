@@ -17,6 +17,7 @@ import secrets_app
 import Encrypt
 import webbrowser
 import pypresence as pyp
+import Inventory
 from time import sleep as wait
 from threading import Thread
 from os import remove as rm
@@ -25,10 +26,16 @@ from random import randint
 
 def _getYearDay():
     return int(datetime.now().timetuple().tm_yday)
+def _forceRange(low,val,high):
+    """ensures val is inbetween low and high"""
+    val=min(high,val)
+    val= max(low,val)
+    return val
 
 class sao():
     health=100
     energy=100
+    hunger=100 #unimplemented
     gold=0
     level=1
     task=""
@@ -38,6 +45,9 @@ class sao():
     
     auto=False
     yearday=-1
+    
+    slots=[4,4]
+    inventory=None
     
     def awaitGuild(self):
         """
@@ -62,6 +72,19 @@ class sao():
         #key="WyJ0aGUgam9lcyIsIkFXRkFXRkdXIl0="
         try:
             [name,invite]=Encrypt.decode(key)
+            for _,check in enumerate([name,invite]): #no cheating bozo
+                bad=False
+                for _,badchar in enumerate(["'",'"',"]","[",","]):
+                    if badchar in check:bad=True
+                    if bad:break
+                if bad:
+                    print(">>>stupid cheater")
+                    crash() #will fail try
+                    if False:
+                        rm("sao.data")
+                        self.load()
+
+
             url="https://discord.gg/"+invite
             webbrowser.open_new(url)
             self.guild=name
@@ -69,6 +92,13 @@ class sao():
             print(">>> "+self.guild)
             print(">>> "+url)
         except:print("> failed to join guild.")
+    def statNormalize(self):
+        self.health=_forceRange(0,self.health,100)
+        self.energy=_forceRange(0,self.energy,100)
+        self.level=_forceRange(0,self.level,100)
+        #self.gold=_forceRange(,self.gold,)
+        self.day=_forceRange(1,self.day,self.day+1)
+        self.timestamp=_forceRange(0,self.timestamp,self.timestamp+1)
     def autoStats(self):
         """
         auto increment level and gold
@@ -104,7 +134,10 @@ class sao():
                 self.yearday=_getYearDay()
                 self.day+=1
                 print(f">> new day, {self.day}")
-                wait(0)
+                #time for taxes hehehe
+                print(">>> the government takes taxes")
+                self.gold-=0 #consult how to handle taxes
+                
     def load(self):
         try:
             save=flu.read("data.sao")
@@ -169,12 +202,26 @@ class pwrite:
             self.saoC.save()
             wait(15)
 
-
-mysao=sao()
-myp=pwrite(appid=secrets_app.appid,saoClient=mysao)
-Thread(target=myp.loop).start()
-#Thread(target=mysao.loop).start()
-Thread(target=mysao.awaitGuild).start()
-Thread(target=mysao.dayCounter).start()
-Thread(target=mysao.autoStats).start()
-mygui=interface.Gui(mysao) #holds main thread just because
+if __name__=="__main__":
+    threads=[]
+    mysao=sao()
+    myp=pwrite(appid=secrets_app.appid,saoClient=mysao)
+    threads.append(Thread(target=myp.loop))
+    #Thread(target=mysao.loop).start()
+    threads.append(Thread(target=mysao.awaitGuild))
+    threads.append(Thread(target=mysao.dayCounter))
+    threads.append(Thread(target=mysao.autoStats))
+    mysao.inventory=Inventory.Inventory(mysao)
+    for _,thread in enumerate(threads):thread.start()#;wait(0.25)
+    
+    if True: #inventory test
+        wait(1)
+        print("inventory test!")
+        from Item import Database
+        mysao.health=10
+        mysao.inventory.give(Database.fromName("Apple"))
+        mysao.inventory.use(1,1,5)
+        print(mysao.health)
+        print("end test.\n")
+    
+    mygui=interface.Gui(mysao) #holds main thread just because
